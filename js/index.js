@@ -1,7 +1,7 @@
 /**
  * Author: Mean
  * Date: 2022-07-27 16:00:15
- * LastEditTime: Fri Jul 29 2022 11:16:48
+ * LastEditTime: Fri Aug 19 2022 17:08:42
  * LastEditors: Mean
  * the best code is no code at all
 */
@@ -115,3 +115,69 @@ export function debounce(func, wait = 500, immediate = false) {
         init ? func.apply(this, args) : null
     }
 }
+
+/** 
+ * @description: 判断元素是否进入可视区域
+ * @updateTime 2022-08-10 17:19:29
+ * @param {Object HTMLElement} el
+ * @param {Number} diff
+ * @return {Boolean}
+ */
+export function isInViewport(el, diff = 0) {
+    const viewportHeight =
+        window.innerHeight ||
+        document.documentElement.scrollHeight ||
+        document.body.scrollHeight;
+    const { top, height } = el.getBoundingClientRect();
+    return top >= -height && top <= viewportHeight - diff;
+}
+
+/** 
+ * @description: 滚动结束回调函数
+ * @updateTime 2022-08-19 11:18:30
+ * @param {Object HTMLElement} el
+ * @param {Object Function} func
+ * @param {Number} timerWait
+ */
+export function scrollOver(el, func, timerWait = 1000) {
+    let scrollTimer = null, scrollTop = null
+    el.addEventListener('scroll', () => {
+        if (scrollTimer == null) {
+            scrollTimer = setInterval(() => {
+                const { top } = el.getBoundingClientRect()
+                if (scrollTop != null && scrollTop === top) {
+                    func()
+                    clearInterval(scrollTimer)
+                    scrollTimer = null
+                } else {
+                    scrollTop = top
+                }
+            }, timerWait)
+        }
+    })
+}
+
+/** 
+ * @description: 复制文本
+ * @updateTime 2022-08-19 17:00:41
+ * @param {String} text
+ * @param {Object Function} func
+ */
+export function copyText(text, func) {
+    try {
+        navigator.clipboard.writeText(text).then(func)
+    } catch (error) {
+        const input = document.createElement('input');
+        input.setAttribute('readonly', 'readonly');
+        input.setAttribute('value', text);
+        document.body.appendChild(input);
+        input.setSelectionRange(0, 9999);
+        input.select()
+        if (document.execCommand('copy')) {
+            document.execCommand('copy');
+            func()
+        }
+        document.body.removeChild(input);
+    }
+}
+
