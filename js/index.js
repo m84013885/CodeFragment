@@ -1,7 +1,7 @@
 /**
  * Author: Mean
  * Date: 2022-07-27 16:00:15
- * LastEditTime: Fri Aug 19 2022 17:08:42
+ * LastEditTime: Fri Aug 19 2022 17:11:58
  * LastEditors: Mean
  * the best code is no code at all
 */
@@ -100,7 +100,7 @@ export function throttled(func, delay = 500) {
  * @updateTime 2022-07-29 11:16:13
  * @param {Object Function} func
  * @param {Number} wait
- * @param {Boolean} immediate
+ * @param {Boolean} immediate 是否直接执行
  * @return {Object Function}
  */
 export function debounce(func, wait = 500, immediate = false) {
