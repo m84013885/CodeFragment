@@ -1,10 +1,11 @@
 /**
  * Author: Mean
  * Date: 2022-07-27 16:00:15
- * LastEditTime: Fri Aug 19 2022 17:11:58
+ * LastEditTime: Fri Aug 26 2022 17:14:39
  * LastEditors: Mean
  * the best code is no code at all
 */
+
 
 /** 
  * @description: 查看对象类型 转换成小写的字符串类型
@@ -181,3 +182,76 @@ export function copyText(text, func) {
     }
 }
 
+/** 
+ * @description: 播放简单的图片帧动画（需要同一个文件夹里的以对应数字0命名的开始的图片序列）
+ * @updateTime 2022-08-26 17:09:24
+ * @param {object HTMLCanvasElement} canvas
+ * @param {String} path
+ * @param {String} imageName
+ * @param {Number} count
+ * @param {Number} speed
+ * @param {Object Function} callback
+ */
+export const canvasAnima = (canvas, path, imageName, count, speed = 20, callback) => {
+    const ctx = canvas.getContext('2d')
+    const width = canvas.width
+    const height = canvas.height
+    const imgObject = {}
+    // 适配不同浏览器
+    const raf = (function () {
+        return window.requestAnimationFrame ||
+            window.webkitRequestAnimationFrame ||
+            window.mozRequestAnimationFrame ||
+            function (callback) {
+                window.setTimeout(callback, 1000 / 60)
+            }
+    })()
+    // 执行drawImage
+    const startAnima = (img) => {
+        ctx.clearRect(0, 0, width, height)
+        ctx.drawImage(img, 0, 0, width, height)
+    }
+    const startStep = () => {
+        let lastTime = null
+        let index = 0
+        const step = (ts) => {
+            let progress
+            if (lastTime == null) {
+                lastTime = ts
+                raf(step)
+            } else {
+                progress = ts - lastTime
+                if (progress >= speed) {
+                    lastTime = ts
+                    startAnima(imgObject[index])
+                    index++
+                    if (index < count) {
+                        raf(step)
+                    } else {
+                        callback && callback()
+                    }
+                } else {
+                    raf(step)
+                }
+            }
+        }
+        raf(step)
+    }
+    // 图片加载
+    let onloadImageNum = 0
+    for (let i = 0; i < count; i++) {
+        const imageUrl = require(`${path + i + imageName}`)
+        const image = new Image()
+        image.src = imageUrl
+        // 导入到对象中
+        imgObject[i] = image
+        image.onload = () => {
+            onloadImageNum++
+            // 加载完成图片等于图片数组长度，代表完成加载
+            if (onloadImageNum === count) {
+                startStep()
+            }
+        }
+    }
+
+}
